@@ -1,0 +1,31 @@
+---
+- hosts: my-server #Change this to the destination server
+  become: yes
+  tasks:
+    - name: Update the server    
+      yum:
+        name: "*"
+        state: latest
+      tags: update_server
+    - name: Install nginx
+      command: sudo amazon-linux-extras install nginx1 -y
+    - name: Install nginx, git, cerbot and python2-certbot-nginx
+      user:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - nginx
+        - git
+        - certbot 
+        - python2-certbot-nginx
+    - name: Enable web server on startup
+      service:
+        name: nginx
+        enabled: yes
+    - name: Restart nginx webserver      
+      service:
+        name: nginx
+        state: restarted
+      tags: restart_nginx
+    - name: Set the timezone to Asia/Jakarta
+      command: sudo timedatectl set-timezone Asia/Jakarta
